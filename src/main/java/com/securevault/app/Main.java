@@ -1,22 +1,44 @@
 package com.securevault.app;
 
-import com.securevault.crypto.IVGenerator;
+import com.securevault.crypto.*;
 
-import java.util.Base64;
+import javax.crypto.SecretKey;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        byte[] iv = IVGenerator.generateIV();
+        try {
 
-        System.out.println("==================================");
-        System.out.println(" SecureVault");
-        System.out.println("==================================");
+            SecretKey key = KeyGeneratorUtil.generateAESKey();
 
-        System.out.println("Generated IV:");
+            byte[] iv = IVGenerator.generateIV();
 
-        System.out.println(Base64.getEncoder().encodeToString(iv));
+            AESService aes = new AESService();
+
+            String message = "Hello SecureVault!";
+
+            System.out.println("Original:");
+            System.out.println(message);
+
+            String encrypted =
+                    aes.encrypt(message, key, iv);
+
+            System.out.println("\nEncrypted:");
+            System.out.println(encrypted);
+
+            String decrypted =
+                    aes.decrypt(encrypted, key, iv);
+
+            System.out.println("\nDecrypted:");
+            System.out.println(decrypted);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
 
     }
+
 }
