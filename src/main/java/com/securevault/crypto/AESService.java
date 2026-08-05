@@ -3,12 +3,12 @@ package com.securevault.crypto;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import java.util.Base64;
 
 public class AESService {
 
-    public String encrypt(String plainText, SecretKey key, byte[] iv)
-            throws CryptoException {
+    public byte[] encrypt(byte[] data,
+                          SecretKey key,
+                          byte[] iv) throws CryptoException {
 
         try {
 
@@ -22,23 +22,19 @@ public class AESService {
 
             cipher.init(Cipher.ENCRYPT_MODE, key, spec);
 
-            byte[] encrypted =
-                    cipher.doFinal(plainText.getBytes());
-
-            return Base64.getEncoder().encodeToString(encrypted);
+            return cipher.doFinal(data);
 
         } catch (Exception e) {
 
-            throw new CryptoException("Encryption failed", e);
+            throw new CryptoException("Encryption failed.", e);
 
         }
 
     }
 
-    public String decrypt(String encryptedText,
+    public byte[] decrypt(byte[] encryptedData,
                           SecretKey key,
-                          byte[] iv)
-            throws CryptoException {
+                          byte[] iv) throws CryptoException {
 
         try {
 
@@ -52,17 +48,11 @@ public class AESService {
 
             cipher.init(Cipher.DECRYPT_MODE, key, spec);
 
-            byte[] decoded =
-                    Base64.getDecoder().decode(encryptedText);
-
-            byte[] decrypted =
-                    cipher.doFinal(decoded);
-
-            return new String(decrypted);
+            return cipher.doFinal(encryptedData);
 
         } catch (Exception e) {
 
-            throw new CryptoException("Decryption failed", e);
+            throw new CryptoException("Decryption failed.", e);
 
         }
 

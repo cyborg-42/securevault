@@ -1,20 +1,46 @@
-package com.securevault.crypto;
+package com.securevault.app;
 
-import java.security.SecureRandom;
+import com.securevault.crypto.AESService;
+import com.securevault.crypto.IVGenerator;
+import com.securevault.crypto.KeyGeneratorUtil;
 
-public final class IVGenerator {
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
-    private static final SecureRandom secureRandom = new SecureRandom();
+public class Main {
 
-    private IVGenerator() {
-    }
+    public static void main(String[] args) {
 
-    public static byte[] generateIV() {
+        try {
 
-        byte[] iv = new byte[CryptoConstants.GCM_IV_LENGTH];
+            SecretKey key = KeyGeneratorUtil.generateAESKey();
 
-        secureRandom.nextBytes(iv);
+            byte[] iv = IVGenerator.generateIV();
 
-        return iv;
+            AESService aes = new AESService();
+
+            String message = "Welcome to SecureVault!";
+
+            byte[] encrypted =
+                    aes.encrypt(
+                            message.getBytes(StandardCharsets.UTF_8),
+                            key,
+                            iv);
+
+            byte[] decrypted =
+                    aes.decrypt(
+                            encrypted,
+                            key,
+                            iv);
+
+            System.out.println("Original : " + message);
+            System.out.println("Encrypted Length : " + encrypted.length);
+            System.out.println("Recovered : "
+                    + new String(decrypted, StandardCharsets.UTF_8));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

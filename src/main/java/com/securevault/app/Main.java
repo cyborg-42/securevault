@@ -1,41 +1,58 @@
-package com.securevault.app;
+package com.securevault.crypto;
 
-import com.securevault.crypto.*;
-
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 
-public class Main {
+public class AESService {
 
-    public static void main(String[] args) {
+    public byte[] encrypt(byte[] data,
+                          SecretKey key,
+                          byte[] iv) throws CryptoException {
 
         try {
 
-            SecretKey key = KeyGeneratorUtil.generateAESKey();
+            Cipher cipher =
+                    Cipher.getInstance(CryptoConstants.AES_TRANSFORMATION);
 
-            byte[] iv = IVGenerator.generateIV();
+            GCMParameterSpec spec =
+                    new GCMParameterSpec(
+                            CryptoConstants.GCM_TAG_LENGTH,
+                            iv);
 
-            AESService aes = new AESService();
+            cipher.init(Cipher.ENCRYPT_MODE, key, spec);
 
-            String message = "Hello SecureVault!";
-
-            System.out.println("Original:");
-            System.out.println(message);
-
-            String encrypted =
-                    aes.encrypt(message, key, iv);
-
-            System.out.println("\nEncrypted:");
-            System.out.println(encrypted);
-
-            String decrypted =
-                    aes.decrypt(encrypted, key, iv);
-
-            System.out.println("\nDecrypted:");
-            System.out.println(decrypted);
+            return cipher.doFinal(data);
 
         } catch (Exception e) {
 
-            e.printStackTrace();
+            throw new CryptoException("Encryption failed.", e);
+
+        }
+
+    }
+
+    public byte[] decrypt(byte[] encryptedData,
+                          SecretKey key,
+                          byte[] iv) throws CryptoException {
+
+        try {
+
+            Cipher cipher =
+                    Cipher.getInstance(CryptoConstants.AES_TRANSFORMATION);
+
+            GCMParameterSpec spec =
+                    new GCMParameterSpec(
+                            CryptoConstants.GCM_TAG_LENGTH,
+                            iv);
+
+            cipher.init(Cipher.DECRYPT_MODE, key, spec);
+
+            return cipher.doFinal(encryptedData);
+
+        } catch (Exception e) {
+
+            throw new CryptoException("Decryption failed.", e);
 
         }
 
